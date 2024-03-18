@@ -1,0 +1,298 @@
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+==============================================================================================================================================================================================================
+
+df = pd.read_csv("Sales Data.csv")
+print(df)
+
+==============================================================================================================================================================================================================
+
+df = df.drop(columns = 'Unnamed: 0',axis = 1)
+
+==============================================================================================================================================================================================================
+
+print('Total Unique Products in the Category - ',df['Product'].nunique())
+print()
+print('Unique Products in the Category are : ')
+
+c = 0
+for i in df['Product'].unique() : 
+    c += 1
+    print(f'{c}) {i}')
+
+==============================================================================================================================================================================================================
+
+print(f" Unique Cities are : {df['City'].nunique()} ")
+print()
+c = 0
+for i in df['City'].unique() :
+    c += 1
+    print(f'{c}) {i}')
+
+==============================================================================================================================================================================================================
+
+print(f"Records in Dataset are from '{df['Order Date'].min()}' to '{df['Order Date'].max()}' .")
+
+==============================================================================================================================================================================================================
+
+print(f" Total Sales/Revenue Generated in Whole Year is INR {round(df['Sales'].sum(),2)} ")
+
+==============================================================================================================================================================================================================
+
+print(f" Total Quantity Ordered in Whole Year is {round(df['Quantity Ordered'].sum(),2)} units")
+
+==============================================================================================================================================================================================================
+
+print(f" Total unique Orders in Whole Year is {df['Order ID'].nunique()} ")
+
+==============================================================================================================================================================================================================
+
+df.columns
+
+==============================================================================================================================================================================================================
+
+print( f'The Dataframe has {df.shape[0]} rows and {df.shape[1]} columns' )
+
+==============================================================================================================================================================================================================
+
+df.info()
+
+==============================================================================================================================================================================================================
+
+df['Order Date'] = pd.to_datetime( df['Order Date'] )
+
+==============================================================================================================================================================================================================
+
+df.isnull().sum()
+
+==============================================================================================================================================================================================================
+
+df.dropna()
+
+==============================================================================================================================================================================================================
+
+df.duplicated().sum()
+
+==============================================================================================================================================================================================================
+
+df = df.drop_duplicates()
+df.duplicated().sum()
+
+==============================================================================================================================================================================================================
+
+for i in df.describe().columns :
+    print(f'Column Name : {i}')
+    print('Uniques Values : ',df[i].nunique())
+    sns.boxplot(df[i])
+    plt.show()
+    print('-'*50)
+
+==============================================================================================================================================================================================================
+
+for i in df.describe(include = 'object').columns :
+    print(f'Column Name : {i}')
+    print(f'Unique Values : {df[i].nunique()}')
+    print('-'*50)
+
+==============================================================================================================================================================================================================
+
+sales = df.groupby('Product').agg( Quantity_Sold = ('Quantity Ordered','sum') , Sales = ('Sales','sum') ).reset_index()
+sales
+
+==============================================================================================================================================================================================================
+
+print('Top 3 selling Products by Quantity are : ')
+print()
+for i in sales.nlargest(3,'Quantity_Sold')['Product'] :
+    print(i)
+
+==============================================================================================================================================================================================================
+
+print('Bottom 3 selling Products by Quantity are : ')
+print()
+for i in sales.nsmallest(3,'Quantity_Sold')['Product'] :
+    print(i)
+
+==============================================================================================================================================================================================================
+
+print('Top 3 selling Products by Sales are : ')
+print()
+for i in sales.nlargest(3,'Sales')['Product'] :
+    print(i)
+
+==============================================================================================================================================================================================================
+
+print('Bottom 3 selling Products by Sales')
+print()
+for i in sales.nsmallest(3,'Sales')['Product'] :
+    print(i)
+
+==============================================================================================================================================================================================================
+
+print('Sales/Revenue generated at each Hour')
+print()
+df.groupby('Hour')['Sales'].sum()
+
+==============================================================================================================================================================================================================
+
+print('Peak Sales Hour')
+print()
+df.groupby('Hour')['Sales'].sum().nlargest(1)
+
+==============================================================================================================================================================================================================
+
+prod_sales = df.groupby('Product').agg(Total_Sales = ('Sales','sum') ,
+                          Total_Quantity_Sold = ('Quantity Ordered','sum')).reset_index()
+
+# Dividing the Total_Sales by 1000
+prod_sales['Total_Sales'] = round ( prod_sales['Total_Sales'] / 1000 , 1 )
+
+top5_prod_sales = prod_sales.nlargest(5,'Total_Sales')
+
+plt.figure(figsize = (15,5))
+plt.bar(data = top5_prod_sales , x = 'Product' , height = 'Total_Quantity_Sold' , label = 'Quantity')
+plt.plot(top5_prod_sales['Product'] , top5_prod_sales['Total_Sales'] , label = 'Sales' , color = 'red' )
+plt.title('Top 5 Product by Sales and their respective Quantity Sold')
+plt.xlabel('\nProduct')
+plt.ylabel('Sales (In Thousands) and Quantity')
+plt.legend()
+plt.show()
+
+==============================================================================================================================================================================================================
+
+prod_sales = df.groupby('Product').agg(Total_Sales = ('Sales','sum') ,
+                          Total_Quantity_Sold = ('Quantity Ordered','sum')).reset_index()
+
+bottom5_prod_sales = prod_sales.nsmallest(5,'Total_Sales')
+
+plt.figure(figsize = (15,5))
+plt.bar(data = bottom5_prod_sales , x = 'Product' , height = 'Total_Quantity_Sold' , label = 'Quantity')
+plt.plot(bottom5_prod_sales['Product'] , bottom5_prod_sales['Total_Sales'] , label = 'Sales' , color = 'red' )
+plt.title('Bottom 5 Product by Sales and their respective Quantity Sold')
+plt.xlabel('\nProduct')
+plt.ylabel('Quantity and Sales')
+plt.legend()
+plt.show()
+
+==============================================================================================================================================================================================================
+
+prod_sales = df.groupby('Product').agg(Total_Sales = ('Sales','sum') ,
+                          Total_Quantity_Sold = ('Quantity Ordered','sum')).reset_index()
+
+top5_prod_quantity = prod_sales.nlargest(5,'Total_Quantity_Sold')
+
+plt.figure(figsize = (15,5))
+plt.bar(data = top5_prod_quantity , x = 'Product' , height = 'Total_Quantity_Sold' , label = 'Quantity')
+plt.plot(top5_prod_quantity['Product'] , top5_prod_quantity['Total_Sales'] , label = 'Sales' , color = 'red' )
+plt.title('Top 5 Product by Quantities Sold and their respective Sales')
+plt.xlabel('\nProduct')
+plt.ylabel('Quantity and Sales')
+plt.legend()
+plt.show()
+
+==============================================================================================================================================================================================================
+
+prod_sales = df.groupby('Product').agg(Total_Sales = ('Sales','sum') ,
+                          Total_Quantity_Sold = ('Quantity Ordered','sum')).reset_index()
+
+prod_sales['Total_Sales'] = prod_sales['Total_Sales'] / 1000
+bottom5_prod_quantity = prod_sales.nsmallest(5,'Total_Quantity_Sold')
+
+plt.figure(figsize = (15,5))
+plt.bar(data = bottom5_prod_quantity , x = 'Product' , height = 'Total_Quantity_Sold' , label = 'Quantity')
+plt.plot(bottom5_prod_quantity['Product'] , bottom5_prod_quantity['Total_Sales'] , label = 'Sales' , color = 'red' )
+plt.title('Bottom 5 Product by Quantities Sold and their respective Sales')
+plt.xlabel('\nProduct')
+plt.ylabel('Revenue/Sales (in Thousand )and Quantity Ordered')
+plt.legend()
+plt.show()
+
+==============================================================================================================================================================================================================
+
+for i in df['City'].unique():
+    print('Top 5 best Selling Products by Sales/Revenue :',i)
+    print( df.groupby(['City','Product'])['Sales'].sum().loc[i].nlargest(5) )
+    print('-'*100)
+
+==============================================================================================================================================================================================================
+
+for i in df['City'].unique() :
+    print(f'City Name : {i}')
+    print( 'Lowest 5 selling Product by Sales/Revenue',df.groupby(['City','Product'])['Sales'].sum().loc[i].nsmallest(5) )
+    print('-'*50)
+
+==============================================================================================================================================================================================================
+
+sales_city = df.groupby('City')['Sales'].sum().reset_index()
+sales_city['Sales'] = sales_city['Sales'] / 10000
+
+plt.figure( figsize = (12,5) )
+plt.bar( data = sales_city , x = 'City' , height = 'Sales')
+plt.ylabel('\nSales/Revenue (in Ten Thousands)')
+plt.xlabel('\nCity')
+plt.title('Revenue generated by each City\n')
+plt.show()
+
+==============================================================================================================================================================================================================
+
+sales_quan_hour = df.groupby('Hour').agg(Total_Sales = ('Sales','sum') , Total_Quan = ('Quantity Ordered','sum') )
+sales_quan_hour['Total_Sales'] = round ( sales_quan_hour['Total_Sales'] / 100 , 1 )
+sales_quan_hour = sales_quan_hour.reset_index()
+
+plt.figure(figsize = (15,5))
+plt.bar(data = sales_quan_hour , x = 'Hour' , height = 'Total_Quan' , label = 'Quantity Ordered')
+plt.plot(sales_quan_hour['Hour'] , sales_quan_hour['Total_Sales'] , label = 'Sales/Revenue' , color = 'red' )
+plt.ylabel('Sales/Revenue (In Hundreds) and Quantity')
+plt.xlabel('Hours')
+plt.xticks(ticks = np.arange(0,24,1))
+plt.yticks(ticks = np.arange(0,27000,2000))
+plt.legend()
+plt.title('Total Sales and Quantity Sold at Each Hour')
+plt.show() 
+
+==============================================================================================================================================================================================================
+
+monthly_sales = df.groupby([ df['Order Date'].dt.month , df['Order Date'].dt.month_name() ]). \
+                                                 agg(
+                                                      Total_Quantity_Sold = ( 'Quantity Ordered' , 'sum') ,
+                                                      Total_Sales = ( 'Sales' , 'sum')
+)
+
+monthly_sales.index = monthly_sales.index.set_names(['Month Number','Month Name'])
+monthly_sales = monthly_sales.reset_index()
+monthly_sales['Total_Sales'] = round( monthly_sales['Total_Sales'] / 100 , 2)
+
+plt.figure(figsize = (15,5) )
+plt.bar(data = monthly_sales , x = 'Month Name' , height = 'Total_Quantity_Sold' , label = 'Quantity Ordered' )
+plt.plot( monthly_sales['Month Name'] , monthly_sales['Total_Sales'] , label = 'Sales/Revenue' , c = 'red' )
+plt.xlabel('\nMonth')
+plt.ylabel('Sales/Revenue (In Hundreads) and Quantity\n')
+plt.legend()
+plt.yticks( ticks = np.arange(0 , 50000 , 5000 ) )
+plt.show()
+
+==============================================================================================================================================================================================================
+
+m_o_m_sales = df.groupby([ 'Month' , df['Order Date'].dt.month_name() ])['Sales'].sum().pct_change().reset_index()
+m_o_m_sales = m_o_m_sales.rename(columns = {'Month' : 'Month Number' , 'Order Date' : 'Month Name' , 'Sales' : '% Change'})
+
+plt.figure(figsize = (15,5) )
+plt.plot( m_o_m_sales['Month Name'] , m_o_m_sales['% Change'] )
+plt.yticks( ticks = np.arange( -0.3 , 1.1 , 0.1 ) )
+plt.title("Month on Month Sales Trend")
+plt.ylabel('% Change')
+plt.xlabel('\n Month')
+plt.grid()
+plt.show()
+
+==============================================================================================================================================================================================================
+
+print(f"Overall in Whole year the Average Growth Percentage was {round(m_o_m_sales['% Change'].mean() , 2)*100}% .")
+
+==============================================================================================================================================================================================================
+
+
