@@ -1,0 +1,275 @@
+=============================================================================================================================================================
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+=============================================================================================================================================================
+data = pd.read_csv("HR Analytics\Data\HR-Employee-Attrition.csv")
+data
+=============================================================================================================================================================
+data.columns
+=============================================================================================================================================================
+data.isnull().sum()
+=============================================================================================================================================================
+data.duplicated().sum()
+=============================================================================================================================================================
+data.info()
+
+d = [ 'Age' , 'Attrition' , 'Department' , 'DistanceFromHome' , 'Education' , 'EducationField' ,
+       'Gender', 'BusinessTravel' ,'HourlyRate', 'JobRole', 'JobSatisfaction' , 'MaritalStatus' , 'MonthlyIncome' , 'MonthlyRate' , 
+       'OverTime' , 'PercentSalaryHike' , 'PerformanceRating' , 'RelationshipSatisfaction' , 'StandardHours',
+       'TotalWorkingYears' , 'TrainingTimesLastYear' , 'WorkLifeBalance', 'YearsAtCompany' , 'YearsInCurrentRole',
+       'YearsSinceLastPromotion','NumCompaniesWorked','EmployeeCount']
+
+df = data[d]
+df
+=============================================================================================================================================================
+df.describe()
+=============================================================================================================================================================
+for i in df.describe().columns :
+    print(f"Column Name : {i}")
+    print(f"Unique Values : {df[i].nunique()}")
+    if df[i].nunique() > 10 :
+        c = 0
+        while c < 10 :
+            print( list( df[i].unique())[c], end = "   |   ")
+            c += 1
+    else:
+        for j in df[i].unique() :
+            print( j , end = "   |   " )
+    sns.boxplot(df[i])
+    plt.show()
+    print('-'*80)
+=============================================================================================================================================================
+for i in df.describe(include = 'object').columns :
+    print(f"Unique Values in Column '{i}': {df[i].nunique()}")
+    for j in df[i].unique():
+        print(f"* {j}", end = "  |  ")
+    print()
+    print('-'*50)
+=============================================================================================================================================================
+print(f" Total Number of Employees in Company = {( df['EmployeeCount'].count() ).sum()} ")
+print()
+print(f" Number of Employees attrited = {( df['Attrition'] == 'Yes' ).sum()} ")
+print()
+print(f" Number of Employees NOT attrited = {( df['Attrition'] == 'No' ).sum()} ")
+print()
+print(f" Attrition Rate is =  {round ( ( df['Attrition'] == 'Yes' ).sum() / df['EmployeeCount'].count() , 1) * 100} % " )
+=============================================================================================================================================================
+plt.figure( figsize = (25,15) )
+col_list = list( df.describe().columns )
+corr_matrix = df[col_list].corr()
+sns.heatmap(corr_matrix , annot = True , cmap = 'coolwarm')
+plt.show()
+=============================================================================================================================================================
+overtime_emp = ( df['OverTime'] == 'Yes' ).sum()
+print('Number of Overtime Employees : ',overtime_emp)
+print()
+non_overtime_emp = ( df['OverTime'] == 'No' ).sum()
+print('Number of NON - Overtime Employees',non_overtime_emp)
+print()
+print(f"Percentage of Overtime Employees : {round( (overtime_emp / df.shape[0] )*100 , 2)}%" )
+=============================================================================================================================================================
+# Understanding the Diversification/Distribution of Employee's in various categories in the XYZ Company
+=============================================================================================================================================================
+sns.countplot(data = df , x = 'OverTime' )
+plt.ylabel("Number of Employees")
+plt.yticks( ticks = np.arange(0,1200,100) )
+plt.show()
+=============================================================================================================================================================
+sns.catplot(data = df , x = 'OverTime' , col = 'Gender' , kind = 'count' )
+plt.ylabel("Number of Employees")
+plt.yticks( ticks = np.arange(0,800,50) )
+plt.show()
+=============================================================================================================================================================
+sns.countplot(data = df , x = 'MaritalStatus' )
+plt.xlabel("\nMarital Status")
+plt.ylabel("Number of Employees\n")
+plt.title("Employees by Marital Status\n")
+plt.show()
+=============================================================================================================================================================
+sns.countplot(data = df , x = 'MaritalStatus' , hue = 'Gender' )
+plt.xlabel("\nMarital Status")
+plt.ylabel("Number of Employees\n")
+plt.title("Employees by Marital Status\n")
+plt.show()
+=============================================================================================================================================================
+plt.figure( figsize = (10 , 5) )
+sns.countplot(data = df , y = 'JobRole')
+plt.xlabel("\nNumber of Employees")
+plt.ylabel("Job Role\n")
+plt.title("Employee's by Job Roles\n")
+plt.show()
+=============================================================================================================================================================
+plt.figure( figsize = (10 , 5) )
+sns.countplot(data = df , y = 'JobRole' , hue = 'Gender')
+plt.xlabel("\nNumber of Employees")
+plt.ylabel("Job Role\n")
+plt.title("Gender of Employee's by each Job Role\n")
+plt.show()
+=============================================================================================================================================================
+sns.countplot(data = df , x = 'Gender')
+plt.ylabel("Number of Employees\n")
+plt.yticks( ticks = np.arange(0,1100,100) )
+plt.title("Employee's by Gender\n")
+plt.show()
+=============================================================================================================================================================
+sns.countplot(data = df , y = 'EducationField')
+plt.ylabel("Education Field\n")
+plt.xlabel("\nNumber of Employees")
+plt.title("Employee's by Education Field\n")
+plt.show()
+=============================================================================================================================================================
+sns.countplot(data = df , x = 'Department')
+plt.xlabel("\nDepartment")
+plt.ylabel("Number of Employees\n")
+plt.yticks( ticks = np.arange(0,1100,100) )
+plt.title("Employee's by Department\n")
+plt.show()
+=============================================================================================================================================================
+sns.countplot(data = df , x = 'Department' , hue = 'Gender')
+plt.xlabel("\nDepartment")
+plt.ylabel("Number of Employees\n")
+plt.yticks( ticks = np.arange(0,1100,100) )
+plt.title("Employee's Gender by Department\n")
+plt.show()
+=============================================================================================================================================================
+sns.countplot(data = df , x = 'BusinessTravel')
+plt.xlabel("\nBusiness Travel")
+plt.ylabel("Number of Employees\n")
+plt.yticks( ticks = np.arange(0,1200,100) )
+plt.title("Employee's by Business Travel\n")
+plt.show()
+=============================================================================================================================================================
+ot_corr_age = df['Overtime_2'].corr(df['Age'])
+print(f"Correleation between Overtime and Age of Employee's is {round(ot_corr_age , 2)}")
+print()
+=============================================================================================================================================================
+sns.histplot( data = df , x = 'Education' , bins = 10 , kde = True)
+plt.ylabel("Number of Employees\n")
+plt.xlabel("\nEducation Level")
+plt.title("Employee's by Education Level\n")
+plt.show()
+=============================================================================================================================================================
+sns.histplot( data = df , x = 'NumCompaniesWorked' , binrange = (0,11) , binwidth = 1 , kde = True)
+plt.xticks( ticks = np.arange(0,11,1) )
+plt.yticks( ticks = np.arange(0,610,50) )
+plt.ylabel("Number of Employees\n")
+plt.xlabel("\nCompanies Worked")
+plt.title("Distribution of Employee's by Companies Worked\n")
+plt.show()
+=============================================================================================================================================================
+sns.histplot(data = df , x = 'DistanceFromHome' , bins =10 , kde = True)
+plt.ylabel("Number of Employees\n")
+plt.xlabel("\nDistance From Home (KM)")
+plt.show()
+=============================================================================================================================================================
+sns.histplot( data = df , x = 'TotalWorkingYears' , binwidth = 5 )
+plt.xlabel("\nTotal Working Years")
+plt.ylabel("Number of Employees\n")
+plt.xticks( ticks = np.arange(0,41,5) )
+plt.show()
+=============================================================================================================================================================
+# Salary Analysis
+=============================================================================================================================================================
+sns.histplot( data = df , x = 'MonthlyIncome' , bins = 10 , kde = True )
+plt.xlabel("\nMonthly Income")
+plt.ylabel("Number Of Employees\n")
+plt.title("Monthly Income Distribution")
+plt.show()
+=============================================================================================================================================================
+sns.catplot( data = df , y = 'Department' , x = 'MonthlyIncome' , hue = 'Gender' , kind = 'box' , height = 8 , aspect = 2)
+plt.xlabel("\nMonthly Income")
+plt.ylabel("Department\n")
+plt.title("Salary Distribution by each Job Department\n")
+plt.show()
+=============================================================================================================================================================
+plt.figure( figsize = (15,10) )
+sns.boxplot( data = df , y = 'JobRole' , x = 'MonthlyIncome')
+plt.xlabel("\nMonthly Income")
+plt.ylabel("Department\n")
+plt.title("Salary Distribution by each Job Role\n")
+plt.show()
+=============================================================================================================================================================
+# Analyzing the Attribution Trend
+=============================================================================================================================================================
+sns.countplot( data = df , x = 'Department' , hue = 'Attrition')
+plt.xlabel("\nDepartment")
+plt.ylabel("Number of Employees\n")
+plt.title("Attribution of Employees in Each Department")
+plt.show()
+=============================================================================================================================================================
+sns.countplot( data = df , x = 'JobSatisfaction' , hue = 'Attrition')
+plt.xlabel("\nJob Satisfaction Ratings")
+plt.ylabel("Number of Employees\n")
+plt.title("Attribution of Employees per Job Satisfaction Ratings\n")
+plt.show()
+=============================================================================================================================================================
+sns.countplot( data = df , x = 'Gender' , hue = 'Attrition')
+plt.title("Attribution of Employees by Gender\n")
+plt.xlabel("\nGender")
+plt.ylabel("Number of Employees\n")
+plt.show()
+=============================================================================================================================================================
+plt.figure( figsize = (10,12) )
+sns.countplot( data = df , y = 'Age' , hue = 'Attrition')
+plt.ylabel("\nEmployee's Age")
+plt.xlabel("Number of Employees\n")
+plt.title("Attribution of Employees by Age\n")
+plt.show()
+=============================================================================================================================================================
+plt.figure( figsize = (8,10) )
+sns.countplot( data = df , y = 'DistanceFromHome' , hue = 'Attrition')
+plt.title("Attribution of Employees by Distance From Home\n")
+plt.ylabel("\nDistance From Home (km)")
+plt.xlabel("Number of Employees\n")
+plt.show()
+=============================================================================================================================================================
+plt.figure( figsize = (10,5) )
+sns.countplot( data = df , x = 'EducationField' , hue = 'Attrition')
+plt.title("Attribution of Employees by Education Field\n")
+plt.xlabel("\nEducation Field")
+plt.ylabel("Number of Employees\n")
+plt.show()
+=============================================================================================================================================================
+plt.figure( figsize = (8,10) )
+sns.countplot( data = df , y = 'TotalWorkingYears' , hue = 'Attrition')
+plt.title("Attribution of Employees by Total Working Years\n")
+plt.ylabel("\nTotal Working Years")
+plt.xlabel("Number of Employees\n")
+plt.show()
+=============================================================================================================================================================
+plt.figure( figsize = (10,10) )
+sns.countplot( data = df , y = 'YearsAtCompany' , hue = 'Attrition')
+plt.title("Attribution of Employees by Years at Company\n")
+plt.ylabel("\nYears At Company")
+plt.xlabel("Number of Employees\n")
+plt.show()
+=============================================================================================================================================================
+sns.countplot( data = df , x = 'WorkLifeBalance' , hue = 'Attrition')
+plt.title("Attribution of Employees by Work Life Balance\n")
+plt.xlabel("\nWork Life Balance")
+plt.ylabel("Number of Employees\n")
+plt.show()
+=============================================================================================================================================================
+sns.countplot( data = df , x = 'OverTime' , hue = 'Attrition')
+plt.title("Attribution of Employees by Overtime\n")
+plt.xlabel("\nOvertime")
+plt.ylabel("Number of Employees\n")
+plt.show()
+=============================================================================================================================================================
+plt.figure( figsize = (5,8) )
+sns.countplot( data = df , y = 'JobRole' , hue = 'Attrition' )
+plt.title("Attribution of Employees by Job Role\n")
+plt.ylabel("\nJob Role")
+plt.xlabel("Number of Employees\n")
+plt.show()
+=============================================================================================================================================================
+sns.countplot( data = df , x = 'MaritalStatus' , hue = 'Attrition' )
+plt.title("Attribution of Employees by Marital Status\n")
+plt.xlabel("\nMarital Status")
+plt.ylabel("Number of Employees\n")
+plt.show()
+=============================================================================================================================================================
+
+
